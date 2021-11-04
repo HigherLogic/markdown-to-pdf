@@ -151,6 +151,9 @@ fs.readdir(InputDir, async function(err, files) {
 	        fm['doc_'+fmitem[1]] = fmitem[2];
 	      }
 	    });
+
+	    // Trim frontmatter from mdcontent
+	    mdcontent = mdcontent.replace(/^---\n([\s\S]*?)---\n/,"");
 	  }
 
 		// Get the content of the MD file and convert it
