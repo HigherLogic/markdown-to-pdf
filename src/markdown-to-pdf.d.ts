@@ -13,7 +13,7 @@ export default class MarkdownToPDF {
 	/**
 	 * @async
 	 */
-	convert(data: string, title?: string): Promise<Result>;
+	convert(data: string, title?: string, vars?: object): Promise<Result>;
 	
 	close(): void;
 }

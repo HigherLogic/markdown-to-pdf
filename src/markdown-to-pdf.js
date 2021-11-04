@@ -131,12 +131,13 @@ class MarkdownToPDF {
 		console.log();
 	}
 	
-	async convert(data, title) {
+	async convert(data, title, vars) {
 		if(typeof data !== 'string') throw "Parameter 'data' has to be a string containing Markdown content";
 		if(typeof title !== 'string' && title !== undefined) throw "Parameter 'title' has to be a string";
+		if(typeof vars !== 'object') vars = {}
 		
 		// Convert MD to HTML
-		let preHTML = this._convertToHtml(data, nullCoalescing(title, ''));
+		let preHTML = this._convertToHtml(data, nullCoalescing(title, ''), vars);
 		let html = await this._convertImageRoutes(preHTML);
 		
 		// Build the PDF file
@@ -168,7 +169,7 @@ class MarkdownToPDF {
 	}
 	
 	// This converts the markdown string to it's HTML values # => h1 etc.
-	_convertToHtml(text, title) {
+	_convertToHtml(text, title, vars) {
 		if(this._table_of_contents) text = '[toc]\n' + text;
 		
 		let md = GetMarkdownIt();
@@ -179,12 +180,17 @@ class MarkdownToPDF {
 		doc('nav#table-of-contents').remove();
 		body = doc('body').html();
 		
-		let view = {
+		let defaultview = {
 			title: title,
 			style: this._style,
 			toc: toc,
 			content: body,
 		};
+
+		let view = {
+			...defaultview,
+			...vars
+		}
 		
 		// Compile the template
 		return mustache.render(this._template, view);
