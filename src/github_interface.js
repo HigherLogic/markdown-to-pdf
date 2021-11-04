@@ -135,8 +135,26 @@ fs.readdir(InputDir, async function(err, files) {
 	
 	// Loop through each file converting it
 	for(let file of files) {
+
+		// Read markdown content
+		let mdcontent = GetFileBody(file);
+
+		// Try to extract valid frontmatter
+		fm = {};
+		fmstr = mdcontent.match(/^---\n([\s\S]*?)---\n/);
+	  if (fmstr.length > 0) {
+	  	fmstr = fmstr[1].trim();
+	    fmsplit = fmstr.split("\n");
+	    fmsplit.forEach((element) => {
+	    	fmitem = element.match(/^([^:]+):\s?(.*?)$/);
+	      if (fmitem.length === 3) {
+	        fm['doc_'+fmitem[1]] = fmitem[2];
+	      }
+	    });
+	  }
+
 		// Get the content of the MD file and convert it
-		let result = await md.convert(GetFileBody(file), UpdateFileName(file, null));
+		let result = await md.convert(mdcontent, UpdateFileName(file, null), fm);
 		
 		// If the `build_html` environment variable is true, build the HTML
 		if(build_html === true) {
