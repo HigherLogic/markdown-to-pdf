@@ -128,49 +128,55 @@ let md = new md2pdf({
 });
 md.start();
 fs.readdir(InputDir, async function(err, files) {
-	// Check output folder exists and fetch file array
-	CreateOutputDirectory(OutputDir);
-	
-	files = FilterMarkdownFiles(files);
-	if(files.length === 0) throw 'No markdown files found! Exiting.';
-	
-	console.log('Markdown files found: ' + files.join(', '));
-	
-	// Loop through each file converting it
-	for(let file of files) {
-
-		// Read markdown content
-		let mdcontent = GetFileBody(file);
-
-		// Try to extract valid frontmatter
-		let fm = {};
-		fmstr = mdcontent.match(/^---\n([\s\S]*?)---\n/);
-	  if (fmstr.length > 0) {
-	  	fmstr = fmstr[1].trim();
-	    fmsplit = fmstr.split("\n");
-	    fmsplit.forEach((element) => {
-	    	fmitem = element.match(/^([^:]+):\s?(.*?)$/);
-	      if (fmitem.length === 3) {
-	        fm['doc_'+fmitem[1]] = fmitem[2];
-	      }
-	    });
-
-	    // Trim frontmatter from mdcontent
-	    mdcontent = mdcontent.replace(/^---\n([\s\S]*?)---\n/,"");
-	  }
-
-		// Get the content of the MD file and convert it
-		let result = await md.convert(mdcontent, UpdateFileName(file, null), fm);
+	try {
 		
-		// If the `build_html` environment variable is true, build the HTML
-		if(build_html === true) {
-			BuildHTML(result, file);
+		// Check output folder exists and fetch file array
+		CreateOutputDirectory(OutputDir);
+		
+		files = FilterMarkdownFiles(files);
+		if(files.length === 0) throw 'No markdown files found! Exiting.';
+		
+		console.log('Markdown files found: ' + files.join(', '));
+		
+		// Loop through each file converting it
+		for(let file of files) {
+
+			// Read markdown content
+			let mdcontent = GetFileBody(file);
+
+			// Try to extract valid frontmatter
+			let fm = {};
+			fmstr = mdcontent.match(/^---\n([\s\S]*?)---\n/);
+		  if (fmstr.length > 0) {
+		  	fmstr = fmstr[1].trim();
+		    fmsplit = fmstr.split("\n");
+		    fmsplit.forEach((element) => {
+		    	fmitem = element.match(/^([^:]+):\s?(.*?)$/);
+		      if (fmitem.length === 3) {
+		        fm['doc_'+fmitem[1]] = fmitem[2];
+		      }
+		    });
+
+		    // Trim frontmatter from mdcontent
+		    mdcontent = mdcontent.replace(/^---\n([\s\S]*?)---\n/,"");
+		  }
+
+			// Get the content of the MD file and convert it
+			let result = await md.convert(mdcontent, UpdateFileName(file, null), fm);
+			
+			// If the `build_html` environment variable is true, build the HTML
+			if(build_html === true) {
+				BuildHTML(result, file);
+			}
+			
+			// Build the PDF file
+			BuildPDF(result, file);
 		}
 		
-		// Build the PDF file
-		BuildPDF(result, file);
+		// Close the image server
+		md.close();
+
+	} catch (error) {
+		console.log(error);
 	}
-	
-	// Close the image server
-	md.close();
 });
