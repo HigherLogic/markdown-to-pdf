@@ -129,7 +129,7 @@ let md = new md2pdf({
 md.start();
 fs.readdir(InputDir, async function(err, files) {
 	try {
-		
+
 		// Check output folder exists and fetch file array
 		CreateOutputDirectory(OutputDir);
 		
@@ -146,12 +146,12 @@ fs.readdir(InputDir, async function(err, files) {
 
 			// Try to extract valid frontmatter
 			let fm = {};
-			fmstr = mdcontent.match(/^---\n([\s\S]*?)---\n/);
+			let fmstr = mdcontent.match(/^---\n([\s\S]*?)---\n/);
 		  if (fmstr.length > 0) {
 		  	fmstr = fmstr[1].trim();
-		    fmsplit = fmstr.split("\n");
+		    let fmsplit = fmstr.split("\n");
 		    fmsplit.forEach((element) => {
-		    	fmitem = element.match(/^([^:]+):\s?(.*?)$/);
+		    	let fmitem = element.match(/^([^:]+):\s?(.*?)$/);
 		      if (fmitem.length === 3) {
 		        fm['doc_'+fmitem[1]] = fmitem[2];
 		      }
