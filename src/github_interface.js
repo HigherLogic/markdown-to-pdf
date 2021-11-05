@@ -61,10 +61,11 @@ function CreateOutputDirectory(dirname) {
 	}
 }
 
-// GetMarkdownFiles returns an array of only files ending in .md or .markdown
+// FilterMarkdownFiles returns an array of only files ending in .md or .markdown, from a larger list
+//
 // NOTE: When a file name is the same, eg. happy.md and happy.markdown, only one file is
 // outputted as it will be overwritten. This needs to be checked. (TODO:)
-function GetMarkdownFiles(files) {
+function FilterMarkdownFiles(files) {
 	return files.filter(function(filePath) {
 		if(path.extname(filePath).match(/^(.md|.markdown)$/)) {
 			return true;
@@ -74,7 +75,8 @@ function GetMarkdownFiles(files) {
 
 // GetFileBody retrieves the file content as a string
 function GetFileBody(file) {
-	return md2pdf.getFileContent(InputDir + file);
+	let filedir = InputDir.replace(/\/$/,'') + '/';
+	return md2pdf.getFileContent(filedir + file);
 }
 
 // UpdateFileName is a helper function to replace the extension
@@ -91,7 +93,8 @@ function UpdateFileName(fileName, extension) {
 function BuildHTML(result, file) {
 	file = UpdateFileName(file, 'html');
 	
-	result.writeHTML(OutputDir + file);
+	let outdir = OutputDir.replace(/\/$/,'') + '/';
+	result.writeHTML(outdir + file);
 	
 	console.log('Built HTML file: ' + file);
 	console.log();
@@ -101,12 +104,12 @@ function BuildHTML(result, file) {
 function BuildPDF(result, file) {
 	file = UpdateFileName(file, 'pdf');
 	
-	result.writePDF(OutputDir + file);
+	let outdir = OutputDir.replace(/\/$/,'') + '/';
+	result.writePDF(outdir + file);
 	
 	console.log('Build PDF file: ' + file);
 	console.log();
 }
-
 
 // Assign the style and template files to strings for later manipulation
 const style = (extend_default_theme ? md2pdf.getFileContent(DEFAULT_THEME_FILE) : '')
@@ -128,7 +131,7 @@ fs.readdir(InputDir, async function(err, files) {
 	// Check output folder exists and fetch file array
 	CreateOutputDirectory(OutputDir);
 	
-	files = GetMarkdownFiles(files);
+	files = FilterMarkdownFiles(files);
 	if(files.length === 0) throw 'No markdown files found! Exiting.';
 	
 	console.log('Markdown files found: ' + files.join(', '));
