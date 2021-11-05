@@ -143,7 +143,7 @@ fs.readdir(InputDir, async function(err, files) {
 		let mdcontent = GetFileBody(file);
 
 		// Try to extract valid frontmatter
-		fm = {};
+		let fm = {};
 		fmstr = mdcontent.match(/^---\n([\s\S]*?)---\n/);
 	  if (fmstr.length > 0) {
 	  	fmstr = fmstr[1].trim();
